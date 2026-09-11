@@ -20,11 +20,6 @@ from telegram.ext import (
     filters,
 )
 
-
-# =========================================================
-# CONFIG
-# =========================================================
-
 BOT_TOKEN = os.getenv("BOT_TOKEN", "").strip()
 
 ADMIN_USERNAME = os.getenv(
@@ -46,7 +41,6 @@ try:
 except ValueError:
     ADMIN_CHAT_ID = None
 
-
 BOT_NAME = "Tariq Support Bot"
 OWNER_NAME = "Tariq"
 OWNER_USERNAME = "@Pv_Tariq"
@@ -56,17 +50,11 @@ CHANNEL_USERNAME = "@Chlesh_Dictator"
 
 PORT = int(os.getenv("PORT", "10000"))
 
-
 if not BOT_TOKEN:
     raise RuntimeError(
         "BOT_TOKEN is missing. "
         "Please add BOT_TOKEN in Render Environment Variables."
     )
-
-
-# =========================================================
-# LOGGING
-# =========================================================
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -74,11 +62,6 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-
-
-# =========================================================
-# FASTAPI / RENDER WEB SERVER
-# =========================================================
 
 web_app = FastAPI()
 
@@ -108,10 +91,6 @@ def run_web_server():
     )
 
 
-# =========================================================
-# ADMIN CHECK
-# =========================================================
-
 def is_admin(user) -> bool:
     if not user:
         return False
@@ -123,10 +102,6 @@ def is_admin(user) -> bool:
 
     return username == ADMIN_USERNAME
 
-
-# =========================================================
-# MAIN MENU
-# =========================================================
 
 def main_menu():
     keyboard = [
@@ -147,10 +122,6 @@ def main_menu():
     )
 
 
-# =========================================================
-# CHANNEL BUTTON
-# =========================================================
-
 def channel_button():
     return InlineKeyboardMarkup(
         [
@@ -163,10 +134,6 @@ def channel_button():
         ]
     )
 
-
-# =========================================================
-# /START
-# =========================================================
 
 async def start(
     update: Update,
@@ -213,10 +180,6 @@ async def start(
     )
 
 
-# =========================================================
-# PROFILE
-# =========================================================
-
 async def profile(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE
@@ -240,10 +203,6 @@ async def profile(
     )
 
 
-# =========================================================
-# ABOUT BOT
-# =========================================================
-
 async def about_bot(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE
@@ -258,7 +217,8 @@ async def about_bot(
         "می‌تونی از طریق ربات پیام، عکس، ویدیو، "
         "فایل یا ویس بفرستی.\n\n"
         "پیام تو مستقیماً برای طارق ارسال میشه "
-        "و طارق می‌تونه از طریق همین ربات بهت پاسخ بده."
+        "و طارق می‌تونه از طریق همین ربات بهت پاسخ بده.\n\n"
+        "⚙️ طراحی و توسعه: @cactuc580"
     )
 
     await update.message.reply_text(
@@ -266,10 +226,6 @@ async def about_bot(
         reply_markup=main_menu()
     )
 
-
-# =========================================================
-# HELP
-# =========================================================
 
 async def help_menu(
     update: Update,
@@ -298,10 +254,6 @@ async def help_menu(
     )
 
 
-# =========================================================
-# /MYID
-# =========================================================
-
 async def my_id(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE
@@ -322,10 +274,6 @@ async def my_id(
     )
 
 
-# =========================================================
-# START SENDING MODE
-# =========================================================
-
 async def start_sending(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE
@@ -343,10 +291,6 @@ async def start_sending(
         reply_markup=main_menu()
     )
 
-
-# =========================================================
-# SEND USER MESSAGE TO TARIQ
-# =========================================================
 
 async def send_user_message_to_admin(
     update: Update,
@@ -385,7 +329,6 @@ async def send_user_message_to_admin(
     )
 
     try:
-
         await context.bot.send_message(
             chat_id=ADMIN_CHAT_ID,
             text=header
@@ -419,10 +362,6 @@ async def send_user_message_to_admin(
         )
 
 
-# =========================================================
-# EXTRACT USER ID FROM ADMIN REPLY
-# =========================================================
-
 def extract_user_id_from_admin_message(message):
     if not message.reply_to_message:
         return None
@@ -446,10 +385,6 @@ def extract_user_id_from_admin_message(message):
     except ValueError:
         return None
 
-
-# =========================================================
-# SEND TARIQ'S REPLY BACK TO USER
-# =========================================================
 
 async def send_admin_reply_to_user(
     update: Update,
@@ -480,7 +415,6 @@ async def send_admin_reply_to_user(
         return True
 
     try:
-
         await update.message.copy(
             chat_id=target_user_id
         )
@@ -507,10 +441,6 @@ async def send_admin_reply_to_user(
 
     return True
 
-
-# =========================================================
-# MAIN MESSAGE ROUTER
-# =========================================================
 
 async def message_router(
     update: Update,
@@ -567,14 +497,9 @@ async def message_router(
     )
 
 
-# =========================================================
-# BOT POST INIT
-# =========================================================
-
 async def post_init(
     application: Application
 ):
-
     await application.bot.set_my_commands(
         [
             (
@@ -588,7 +513,7 @@ async def post_init(
             (
                 "myid",
                 "شناسه کاربری"
-            ),
+            )
         ]
     )
 
@@ -596,10 +521,6 @@ async def post_init(
         "Bot commands configured successfully."
     )
 
-
-# =========================================================
-# MAIN
-# =========================================================
 
 def main():
 
@@ -659,10 +580,6 @@ def main():
         drop_pending_updates=False
     )
 
-
-# =========================================================
-# ENTRY POINT
-# =========================================================
 
 if __name__ == "__main__":
     main()
