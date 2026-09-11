@@ -116,13 +116,9 @@ def is_admin(user) -> bool:
     if not user:
         return False
 
-    # Best and safest method:
-    # numeric Telegram user ID
     if ADMIN_CHAT_ID is not None:
         return user.id == ADMIN_CHAT_ID
 
-    # Temporary fallback:
-    # username until ADMIN_CHAT_ID is added to Render
     username = (user.username or "").strip().lower()
 
     return username == ADMIN_USERNAME
@@ -186,7 +182,6 @@ async def start(
 
     user = update.effective_user
 
-    # If Tariq starts the bot, remember his numeric ID
     if is_admin(user):
         ADMIN_CHAT_ID = update.effective_chat.id
 
@@ -195,7 +190,6 @@ async def start(
             ADMIN_CHAT_ID
         )
 
-    # Reset sending mode
     context.user_data["waiting_message"] = False
 
     text = (
@@ -232,11 +226,12 @@ async def profile(
 
     text = (
         "👤 مشخصات طارق\n\n"
-        f"نام: {OWNER_NAME}\n"
-        f"Username: {OWNER_USERNAME}\n\n"
-        "برای ارتباط مستقیم می‌تونی از گزینه "
-        "«💌 ارسال پیام» استفاده کنی.\n\n"
-        "ساخته شده برای ارتباط راحت‌تر با طارق."
+        "نام: طارق — Tariq\n"
+        "Username: @Pv_Tariq\n"
+        "شغل: مالک تیم فانتوم ایکس — Phantom X\n"
+        "📢 کانال: @Chlesh_Dictator\n\n"
+        "✨ «بزرگی در نام نیست؛ در اثری‌ست که از خود به جا می‌گذاری.»\n\n"
+        "برای ارتباط مستقیم، از گزینه «💌 ارسال پیام» استفاده کنید."
     )
 
     await update.message.reply_text(
@@ -365,7 +360,6 @@ async def send_user_message_to_admin(
     if not update.effective_user:
         return
 
-    # Admin must be configured
     if ADMIN_CHAT_ID is None:
         await update.message.reply_text(
             "⚠️ ربات هنوز توسط طارق فعال نشده.\n\n"
@@ -382,13 +376,6 @@ async def send_user_message_to_admin(
         else "ندارد"
     )
 
-    # -----------------------------------------------------
-    # IMPORTANT
-    #
-    # The numeric User ID is placed inside this header.
-    # Tariq must Reply to this header message.
-    # -----------------------------------------------------
-
     header = (
         "📩 پیام جدید از کاربر\n\n"
         f"👤 نام: {user.full_name}\n"
@@ -399,18 +386,15 @@ async def send_user_message_to_admin(
 
     try:
 
-        # First send the information header
         await context.bot.send_message(
             chat_id=ADMIN_CHAT_ID,
             text=header
         )
 
-        # Then copy the actual message
         await update.message.copy(
             chat_id=ADMIN_CHAT_ID
         )
 
-        # Stop waiting mode
         context.user_data["waiting_message"] = False
 
         await update.message.reply_text(
@@ -497,7 +481,6 @@ async def send_admin_reply_to_user(
 
     try:
 
-        # Copy Tariq's reply to the original user.
         await update.message.copy(
             chat_id=target_user_id
         )
@@ -539,10 +522,6 @@ async def message_router(
     if not update.effective_user:
         return
 
-    # -----------------------------------------------------
-    # 1. ADMIN REPLY
-    # -----------------------------------------------------
-
     if is_admin(update.effective_user):
 
         handled = await send_admin_reply_to_user(
@@ -552,10 +531,6 @@ async def message_router(
 
         if handled:
             return
-
-    # -----------------------------------------------------
-    # 2. MENU BUTTONS
-    # -----------------------------------------------------
 
     text = update.message.text or ""
 
@@ -575,10 +550,6 @@ async def message_router(
         await help_menu(update, context)
         return
 
-    # -----------------------------------------------------
-    # 3. USER MESSAGE
-    # -----------------------------------------------------
-
     if context.user_data.get(
         "waiting_message",
         False
@@ -588,10 +559,6 @@ async def message_router(
             context
         )
         return
-
-    # -----------------------------------------------------
-    # 4. UNKNOWN MESSAGE
-    # -----------------------------------------------------
 
     await update.message.reply_text(
         "برای ارسال پیام به طارق، "
@@ -636,10 +603,6 @@ async def post_init(
 
 def main():
 
-    # -----------------------------------------------------
-    # Start HTTP server for Render
-    # -----------------------------------------------------
-
     server_thread = threading.Thread(
         target=run_web_server,
         daemon=True
@@ -652,20 +615,12 @@ def main():
         PORT
     )
 
-    # -----------------------------------------------------
-    # Create Telegram application
-    # -----------------------------------------------------
-
     application = (
         Application.builder()
         .token(BOT_TOKEN)
         .post_init(post_init)
         .build()
     )
-
-    # -----------------------------------------------------
-    # Commands
-    # -----------------------------------------------------
 
     application.add_handler(
         CommandHandler(
@@ -688,10 +643,6 @@ def main():
         )
     )
 
-    # -----------------------------------------------------
-    # All normal Telegram messages
-    # -----------------------------------------------------
-
     application.add_handler(
         MessageHandler(
             filters.ALL & ~filters.COMMAND,
@@ -703,10 +654,6 @@ def main():
         "%s is starting...",
         BOT_NAME
     )
-
-    # -----------------------------------------------------
-    # Telegram long polling
-    # -----------------------------------------------------
 
     application.run_polling(
         drop_pending_updates=False
